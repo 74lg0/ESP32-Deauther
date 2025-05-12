@@ -124,7 +124,9 @@ void handle_root() {
     <form method="post" action="/stop">
         <input type="submit" value="Stop Deauth-Attack">
     </form>
-
+      <form method="post" action="/ssid_spam">
+        <input type="submit" value="Start SSID Spam">
+    </form>
     <h2>Reason Codes</h2>
     <table>
         <tr>
@@ -164,6 +166,62 @@ void handle_root() {
   server.send(200, "text/html", html);
 }
 
+// Spamer de Beacons SSID
+void handle_ssid_spam() {
+  String html = R"(
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSID Spam</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .alert {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-top: 20px;
+            background-color: #008CBA;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background-color: #005f73;
+        }
+    </style>
+</head>
+<body>
+    <div class="alert">
+        <h2>SSID Spam Started</h2>
+        <p>The WiFi has been turned off and SSID spamming has begun!<br>To stop the atack reset the esp32</p>
+    </div>
+    <a href="/" class="button">Back to Home</a>
+</body>
+</html>
+  )";
+
+  server.send(200, "text/html", html);
+  WiFi.softAPdisconnect();
+  beaconFlood();
+}
 
 void handle_deauth() {
   int wifi_number = server.arg("net_num").toInt();
@@ -312,7 +370,8 @@ void start_web_interface() {
   server.on("/deauth_all", handle_deauth_all);
   server.on("/rescan", handle_rescan);
   server.on("/stop", handle_stop);
-
+  // Agregamos la ruta para el Spam Beacon
+  server.on("/ssid_spam", handle_ssid_spam);
   server.begin();
 }
 
